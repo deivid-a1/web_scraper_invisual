@@ -1,0 +1,23 @@
+{
+  "name": "imdb-scraper-nodejs",
+  "version": "1.0.0",
+  "description": "RPA para extração de dados de filmes do IMDB.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "keywords": [
+    "rpa",
+    "selenium",
+    "web-scraping",
+    "imdb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.20.0",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {}
+}

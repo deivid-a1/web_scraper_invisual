@@ -6,3 +6,5 @@ dados_processados/
 log/
 debug/
 run_*/
+executions/
+
