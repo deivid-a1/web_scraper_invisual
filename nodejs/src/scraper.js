@@ -82,6 +82,9 @@ class IMDBScraper {
 
     async* scrapeMovies() {
         this.logger.info("Navegando para a URL principal e buscando links dos filmes.");
+
+        await this.driver.get("https://www.google.com.br");
+
         await this.driver.get(this.url);
         await this._handleCookieBanner();
 
@@ -108,7 +111,7 @@ class IMDBScraper {
             return;
         }
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < movieLinks.length; i++) {
             this.logger.info(`Extraindo dados do filme ${i + 1} de ${movieLinks.length}...`);
             const details = await this._getMovieDetails(movieLinks[i]);
             yield details;
