@@ -16,7 +16,7 @@ Este projeto é um robô de automação (RPA) desenvolvido em Node.js que extrai
 O projeto está organizado da seguinte forma:
 
 ```
-web_scraper_invisual/
+nodejs/
 ├── executions/              # Contém as pastas de cada execução
 │   └── run_AAAA-MM-DD-HH-MM-SS-MSZ/
 │       ├── log/
