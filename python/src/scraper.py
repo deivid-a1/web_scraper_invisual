@@ -19,7 +19,6 @@ class IMDBScraper:
         self.url = url
         self.driver = self._setup_driver()
         self.wait = WebDriverWait(self.driver, 30)
-
         self.debug_dir = os.path.join(execution_path, 'debug')
         os.makedirs(self.debug_dir, exist_ok=True)
 
@@ -27,9 +26,11 @@ class IMDBScraper:
         logger.info("Configurando o driver do Selenium em modo stealth (camuflado)...")
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
+        chrome_options.add_experimental_option('prefs', {'intl.accept_languages': 'pt-BR,pt'})
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        # Descomente a linha abaixo para rodar em modo headless (sem interface gráfica)
         # chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
@@ -109,8 +110,6 @@ class IMDBScraper:
             self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-testid='hero__pageTitle']")))
         except TimeoutException:
             logger.error(f"Timeout ao esperar pelo título do filme em: {movie_url}")
-            logger.debug(f"URL atual no momento do erro: {self.driver.current_url}")
-            logger.debug(f"Título da página no momento do erro: '{self.driver.title}'")
             self._save_debug_page_source("moviedetail")
             return None
         
@@ -139,10 +138,13 @@ class IMDBScraper:
             rating_element = self.driver.find_element(By.CSS_SELECTOR, "[data-testid='hero-rating-bar__aggregate-rating__score'] > span")
             movie_info['Nota'] = rating_element.text.split('/')[0]
         except NoSuchElementException: logger.warning("Nota não encontrada em %s", movie_url)
+        
         try:
-            synopsis_element = self.driver.find_element(By.CSS_SELECTOR, "[data-testid='plot-l']")
-            movie_info['Sinopse'] = synopsis_element.text
-        except NoSuchElementException: logger.warning("Sinopse não encontrada em %s", movie_url)
+            synopsis_selector = "[data-testid='plot']"
+            synopsis_element = self.driver.find_element(By.CSS_SELECTOR, synopsis_selector)
+            movie_info['Sinopse'] = synopsis_element.text.strip()
+        except NoSuchElementException:
+            logger.warning("Sinopse não encontrada em %s", movie_url)
         
         logger.debug(f"Detalhes extraídos para: {movie_info.get('Nome do filme')}")
         return movie_info
@@ -150,22 +152,18 @@ class IMDBScraper:
     def scrape_movies(self):
         logger.info("Iniciando processo de extração de dados dos filmes.")
         movie_links = self._get_movie_links()
-        total_links = len(movie_links)
-        all_movies_data = []
-
+        
         if not movie_links:
             logger.error("Nenhum link de filme foi encontrado. Encerrando a extração.")
-            return [], total_links
+            return
         
         for i, link in enumerate(movie_links):
             logger.info(f"Extraindo dados do filme {i + 1} de {len(movie_links)}...")
             details = self._get_movie_details(link)
-            if details:
-                all_movies_data.append(details)
+            yield details
             time.sleep(uniform(1, 3))
             
         logger.info("Processo de extração de dados finalizado.")
-        return all_movies_data, total_links
 
     def close_driver(self):
         if self.driver:
