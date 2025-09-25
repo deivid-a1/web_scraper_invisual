@@ -11,6 +11,8 @@ class DataHandler:
         self.processed_dir = processed_dir
         self._create_directories()
 
+        
+
     def _create_directories(self):
         try:
             os.makedirs(self.initial_dir, exist_ok=True)
