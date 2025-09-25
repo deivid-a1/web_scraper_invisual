@@ -45,7 +45,6 @@ def main():
         scraper = IMDBScraper(url=IMDB_URL, execution_path=current_execution_path)
         data_handler = DataHandler(execution_path=current_execution_path)
         
-        # O método scrape_movies é um gerador, processamos um filme por vez
         for i, movie_data in enumerate(scraper.scrape_movies()):
             if movie_data:
                 data_handler.save_single_movie_as_json(movie_data, file_id=i+1)
@@ -53,7 +52,6 @@ def main():
             else:
                 failed_scrapes += 1
         
-        # Após o loop, consolida os arquivos JSON salvos em um único Excel
         data_handler.consolidate_json_to_excel(FILENAME)
     
     except Exception as e:

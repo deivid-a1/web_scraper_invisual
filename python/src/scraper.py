@@ -82,6 +82,9 @@ class IMDBScraper:
             
     def _get_movie_links(self):
         logger.info("Navegando para a URL principal e buscando links dos filmes.")
+
+        self.driver.get("https://www.google.com.br")
+
         self.driver.get(self.url)
         self._handle_cookie_banner()
         movie_links = []
