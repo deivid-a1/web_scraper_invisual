@@ -15,11 +15,12 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 logger = logging.getLogger(__name__)
 
 class IMDBScraper:
-    def __init__(self, url):
+    def __init__(self, url, execution_path):
         self.url = url
         self.driver = self._setup_driver()
         self.wait = WebDriverWait(self.driver, 30)
-        self.debug_dir = 'debug'
+
+        self.debug_dir = os.path.join(execution_path, 'debug')
         os.makedirs(self.debug_dir, exist_ok=True)
 
     def _setup_driver(self):
@@ -44,7 +45,7 @@ class IMDBScraper:
         return driver
 
     def _save_debug_page_source(self, context_name=""):
-        timestamp = datetime.now().strftime("%Y%m%d_%HM%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"debug_page_{context_name}_{timestamp}.html"
         filepath = os.path.join(self.debug_dir, filename)
         try:
@@ -120,7 +121,6 @@ class IMDBScraper:
         try:
             metadata_selector = "h1[data-testid='hero__pageTitle'] ~ ul"
             metadata_elements = self.driver.find_element(By.CSS_SELECTOR, metadata_selector).find_elements(By.TAG_NAME, "li")
-
             movie_info['Ano'] = metadata_elements[0].text
             duration_text = metadata_elements[-1].text
             hours, minutes = 0, 0
@@ -155,7 +155,7 @@ class IMDBScraper:
 
         if not movie_links:
             logger.error("Nenhum link de filme foi encontrado. Encerrando a extração.")
-            return [], total_links 
+            return [], total_links
         
         for i, link in enumerate(movie_links):
             logger.info(f"Extraindo dados do filme {i + 1} de {len(movie_links)}...")
